@@ -1,0 +1,15 @@
+{
+  "name": "@ldesign/signature",
+  "version": "0.1.0",
+  "description": "手写签名组件 - Canvas 绘图、触摸支持、导出图片",
+  "keywords": ["ldesign", "signature", "canvas", "drawing"],
+  "author": "LDesign Team",
+  "license": "MIT",
+  "type": "module",
+  "main": "./lib/index.cjs",
+  "module": "./es/index.js",
+  "scripts": {"build": "ldesign-builder build -f esm,cjs,dts"},
+  "dependencies": {"@ldesign/shared": "workspace:*"},
+  "devDependencies": {"@ldesign/builder": "workspace:*", "typescript": "^5.7.3"}
+}
+
