@@ -8,3 +8,8 @@ export class SignaturePad {
 }
 export function createSignaturePad(canvas: HTMLCanvasElement) { return new SignaturePad(canvas) }
 
+
+
+
+
+
