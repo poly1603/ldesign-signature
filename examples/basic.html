@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@ldesign/signature - 基础示例</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .demo-section {
+      margin-bottom: 40px;
+    }
+
+    .demo-section h2 {
+      color: #409eff;
+      margin-bottom: 15px;
+      font-size: 20px;
+    }
+
+    .canvas-container {
+      display: inline-block;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      background: white;
+      cursor: crosshair;
+    }
+
+    .controls {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: white;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    button:hover:not(:disabled) {
+      background: #409eff;
+      color: white;
+      border-color: #409eff;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .danger {
+      color: #f56c6c;
+      border-color: #f56c6c;
+    }
+
+    .danger:hover:not(:disabled) {
+      background: #f56c6c;
+      color: white;
+    }
+
+    .config-panel {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+
+    .config-row {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+
+    .config-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .config-item label {
+      font-size: 14px;
+      color: #666;
+      min-width: 80px;
+    }
+
+    .config-item input,
+    .config-item select {
+      padding: 5px 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .status {
+      margin-top: 10px;
+      padding: 10px;
+      background: #f0f9ff;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .preview {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 4px;
+    }
+
+    .preview img {
+      max-width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .feature-card {
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 4px;
+      border-left: 3px solid #409eff;
+    }
+
+    .feature-card h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .feature-card p {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>✍️ @ldesign/signature</h1>
+    <p class="subtitle">功能强大的手写签名组件 - 完整功能演示</p>
+
+    <!-- 基础示例 -->
+    <div class="demo-section">
+      <h2>📝 基础签名</h2>
+      <div class="config-panel">
+        <div class="config-row">
+          <div class="config-item">
+            <label>笔触颜色:</label>
+            <input type="color" id="penColor" value="#000000">
+          </div>
+          <div class="config-item">
+            <label>最小宽度:</label>
+            <input type="range" id="minWidth" min="0.1" max="5" step="0.1" value="0.5">
+            <span id="minWidthValue">0.5</span>
+          </div>
+          <div class="config-item">
+            <label>最大宽度:</label>
+            <input type="range" id="maxWidth" min="0.5" max="10" step="0.1" value="2.5">
+            <span id="maxWidthValue">2.5</span>
+          </div>
+        </div>
+        <div class="config-row">
+          <div class="config-item">
+            <label>平滑算法:</label>
+            <select id="smoothAlgorithm">
+              <option value="catmull-rom" selected>Catmull-Rom（推荐）</option>
+              <option value="bezier-quadratic">二次贝塞尔</option>
+              <option value="bezier-cubic">三次贝塞尔</option>
+              <option value="none">无平滑</option>
+            </select>
+          </div>
+          <div class="config-item">
+            <label>压力感应:</label>
+            <input type="checkbox" id="pressureSensitive" checked>
+          </div>
+        </div>
+      </div>
+
+      <div class="canvas-container">
+        <canvas id="signature-canvas" width="800" height="400"></canvas>
+      </div>
+
+      <div class="controls">
+        <button id="btn-clear" class="danger">🗑️ 清空</button>
+        <button id="btn-undo">↩️ 撤销</button>
+        <button id="btn-redo">↪️ 重做</button>
+        <button id="btn-export-png">📷 导出 PNG</button>
+        <button id="btn-export-jpeg">📷 导出 JPEG</button>
+        <button id="btn-export-svg">🎨 导出 SVG</button>
+        <button id="btn-export-json">📦 导出 JSON</button>
+        <button id="btn-download">💾 下载签名</button>
+      </div>
+
+      <div class="status" id="status">
+        ✅ 就绪 | 状态: 空 | 可撤销: 否 | 可重做: 否
+      </div>
+    </div>
+
+    <!-- 导出预览 -->
+    <div class="demo-section">
+      <h2>🖼️ 导出预览</h2>
+      <div class="preview" id="preview">
+        <p style="color: #999;">签名导出后将显示在这里...</p>
+      </div>
+    </div>
+
+    <!-- 功能特性 -->
+    <div class="demo-section">
+      <h2>🌟 功能特性</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h3>🎨 Canvas 绘图引擎</h3>
+          <p>高性能实时渲染，支持 DPI 自适应</p>
+        </div>
+        <div class="feature-card">
+          <h3>🖱️ 触摸 & 鼠标</h3>
+          <p>完整的 Pointer Events API，支持多点触控防误触</p>
+        </div>
+        <div class="feature-card">
+          <h3>✏️ 压力感应</h3>
+          <p>支持 Apple Pencil、Wacom、Surface Pen</p>
+        </div>
+        <div class="feature-card">
+          <h3>🌊 Catmull-Rom 平滑</h3>
+          <p>高级样条曲线平滑算法，媲美专业软件</p>
+        </div>
+        <div class="feature-card">
+          <h3>↩️ 撤销/重做</h3>
+          <p>完整的历史管理，最多 50 步</p>
+        </div>
+        <div class="feature-card">
+          <h3>📦 多格式导出</h3>
+          <p>支持 PNG、JPEG、SVG、JSON 四种格式</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // 注意: 在实际项目中，从 npm 包导入
+    // import { createSignaturePad } from '@ldesign/signature';
+
+    // 模拟导入（实际使用时需要构建）
+    console.log('📝 @ldesign/signature - 基础示例');
+    console.log('提示: 这是一个示例 HTML 文件，实际使用需要先构建库');
+    console.log('');
+    console.log('使用方法:');
+    console.log('1. npm install @ldesign/signature');
+    console.log('2. import { createSignaturePad } from "@ldesign/signature"');
+    console.log('3. const signature = createSignaturePad(canvas, config)');
+    console.log('');
+    console.log('功能清单:');
+    console.log('✅ Canvas 绘图引擎');
+    console.log('✅ 鼠标/触摸支持');
+    console.log('✅ 压力感应（Apple Pencil/Wacom/Surface Pen）');
+    console.log('✅ Catmull-Rom 平滑算法');
+    console.log('✅ 动态笔触（速度-粗细映射）');
+    console.log('✅ 撤销/重做');
+    console.log('✅ 导出 PNG/JPEG/SVG/JSON');
+    console.log('✅ Vue 3 组件');
+    console.log('✅ React 组件');
+
+    // 显示使用说明
+    document.getElementById('status').innerHTML = `
+      <strong>📚 使用说明:</strong><br>
+      1. 安装: <code>npm install @ldesign/signature</code><br>
+      2. 导入: <code>import { createSignaturePad } from '@ldesign/signature'</code><br>
+      3. 创建: <code>const signature = createSignaturePad(canvas, config)</code><br>
+      <br>
+      <strong>✨ 已实现的功能 (35+ 项):</strong><br>
+      • P0 核心功能 (15项): Canvas引擎、鼠标/触摸、平滑算法、笔触系统、撤销/重做、多格式导出<br>
+      • P1 高级功能 (20项): 压力感应、背景/水印、裁剪/缩放/压缩、签名验证、Vue/React组件<br>
+      <br>
+      <strong>🎯 更多示例请查看 README.md</strong>
+    `;
+  </script>
+</body>
+
+</html>

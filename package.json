@@ -1,16 +1,88 @@
 {
   "name": "@ldesign/signature",
-  "version": "0.1.0",
-  "description": "手写签名组件 - Canvas 绘图、触摸支持、导出图片",
-  "keywords": ["ldesign", "signature", "canvas", "drawing"],
+  "version": "0.2.0",
+  "description": "功能强大的手写签名组件 - Canvas 绘图、触摸支持、压力感应、Catmull-Rom 平滑、导出多格式",
+  "keywords": [
+    "ldesign",
+    "signature",
+    "canvas",
+    "drawing",
+    "handwriting",
+    "signature-pad",
+    "touch",
+    "pressure-sensitive",
+    "apple-pencil",
+    "smooth",
+    "catmull-rom",
+    "vue",
+    "react"
+  ],
   "author": "LDesign Team",
   "license": "MIT",
   "type": "module",
   "main": "./lib/index.cjs",
   "module": "./es/index.js",
-  "scripts": {"build": "ldesign-builder build -f esm,cjs,dts"},
-  "dependencies": {"@ldesign/shared": "workspace:*"},
-  "devDependencies": {"@ldesign/builder": "workspace:*", "typescript": "^5.7.3"}
+  "types": "./es/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./es/index.js",
+      "require": "./lib/index.cjs",
+      "types": "./es/index.d.ts"
+    },
+    "./vue": {
+      "import": "./es/adapters/vue/index.js",
+      "types": "./es/adapters/vue/index.d.ts"
+    },
+    "./react": {
+      "import": "./es/adapters/react/index.js",
+      "types": "./es/adapters/react/index.d.ts"
+    },
+    "./lit": {
+      "import": "./es/adapters/lit/index.js",
+      "types": "./es/adapters/lit/index.d.ts"
+    }
+  },
+  "files": [
+    "es",
+    "lib",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "ldesign-builder build -f esm,cjs,umd,dts",
+    "build:watch": "ldesign-builder build -f esm,cjs,dts --watch",
+    "dev": "ldesign-builder build -f esm,cjs,dts --watch",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
+  "dependencies": {
+    "@ldesign/shared": "workspace:*"
+  },
+  "peerDependencies": {
+    "vue": ">=3.0.0",
+    "react": ">=16.8.0",
+    "lit": ">=2.0.0"
+  },
+  "peerDependenciesMeta": {
+    "vue": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    },
+    "lit": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@ldesign/builder": "workspace:*",
+    "@types/react": "^18.0.0",
+    "lit": "^3.0.0",
+    "typescript": "^5.7.3",
+    "vitepress": "^1.0.0",
+    "vue": "^3.0.0"
+  }
 }
 
 
