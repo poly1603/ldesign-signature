@@ -1,0 +1,81 @@
+{
+  "name": "@ldesign/signature-core",
+  "version": "0.2.0",
+  "description": "Core engine for signature pad - canvas drawing, touch support, pressure sensitivity",
+  "keywords": [
+    "ldesign",
+    "signature",
+    "canvas",
+    "drawing",
+    "handwriting",
+    "signature-pad",
+    "touch",
+    "pressure-sensitive",
+    "catmull-rom"
+  ],
+  "author": "LDesign Team",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./es/index.d.ts",
+      "import": "./es/index.js",
+      "require": "./lib/index.cjs"
+    },
+    "./core/*": {
+      "types": "./es/core/*.d.ts",
+      "import": "./es/core/*.js",
+      "require": "./lib/core/*.cjs"
+    },
+    "./renderers/*": {
+      "types": "./es/renderers/*.d.ts",
+      "import": "./es/renderers/*.js",
+      "require": "./lib/renderers/*.cjs"
+    },
+    "./features/*": {
+      "types": "./es/features/*.d.ts",
+      "import": "./es/features/*.js",
+      "require": "./lib/features/*.cjs"
+    },
+    "./utils/*": {
+      "types": "./es/utils/*.d.ts",
+      "import": "./es/utils/*.js",
+      "require": "./lib/utils/*.cjs"
+    },
+    "./types": {
+      "types": "./es/types/index.d.ts",
+      "import": "./es/types/index.js",
+      "require": "./lib/types/index.cjs"
+    }
+  },
+  "main": "./lib/index.cjs",
+  "module": "./es/index.js",
+  "types": "./es/index.d.ts",
+  "unpkg": "./dist/index.min.js",
+  "jsdelivr": "./dist/index.min.js",
+  "files": [
+    "README.md",
+    "LICENSE",
+    "package.json",
+    "es",
+    "lib",
+    "dist"
+  ],
+  "scripts": {
+    "dev": "ldesign-builder build --watch",
+    "build": "ldesign-builder build",
+    "clean": "rimraf es lib dist",
+    "test": "vitest run",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ldesign/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@ldesign/builder": "workspace:*",
+    "typescript": "^5.7.3",
+    "vitest": "^1.2.1",
+    "rimraf": "^5.0.5"
+  }
+}
+
