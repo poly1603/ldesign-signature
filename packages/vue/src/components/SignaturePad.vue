@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
-import { SignatureConfig } from '../../../types';
+import { SignatureConfig } from '@ldesign/signature-core';
 import { useSignature } from '../composables/useSignature';
 
 // Props

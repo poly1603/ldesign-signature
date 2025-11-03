@@ -3,8 +3,7 @@
  */
 
 import { ref, watch, onMounted, onUnmounted, Ref } from 'vue';
-import { SignatureConfig, SignatureInstance, SignatureData, ExportFormat } from '../../../types';
-import { createSignaturePad } from '../../../core/signature-pad';
+import { SignatureConfig, SignatureInstance, SignatureData, ExportFormat, createSignaturePad } from '@ldesign/signature-core';
 
 /**
  * Use Signature composable

@@ -4,8 +4,9 @@
 
 import { LitElement, html, css, PropertyValues } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
-import { SignaturePad as SignaturePadCore, createSignaturePad } from '../../../core/signature-pad';
-import { SignatureConfig, SignatureData, ExportFormat, SmoothAlgorithm } from '../../../types';
+import { SignaturePad as SignaturePadCore, createSignaturePad } from '@ldesign/signature-core';
+import type { SignatureConfig, SignatureData, ExportFormat } from '@ldesign/signature-core';
+import { SmoothAlgorithm } from '@ldesign/signature-core';
 
 @customElement('signature-pad')
 export class SignaturePadElement extends LitElement {
@@ -136,12 +137,12 @@ export class SignaturePadElement extends LitElement {
       maxWidth: this.maxWidth,
       smoothAlgorithm: this.smoothAlgorithm,
       pressureSensitive: this.pressureSensitive,
-      onBegin: (e) => this.dispatchEvent(new CustomEvent('begin', { detail: e })),
-      onChange: (e) => {
+      onBegin: (e: PointerEvent) => this.dispatchEvent(new CustomEvent('begin', { detail: e })),
+      onChange: (e: PointerEvent) => {
         this.updateState();
         this.dispatchEvent(new CustomEvent('change', { detail: e }));
       },
-      onEnd: (e) => {
+      onEnd: (e: PointerEvent) => {
         this.updateState();
         this.dispatchEvent(new CustomEvent('end', { detail: e }));
       },

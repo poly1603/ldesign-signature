@@ -14,37 +14,25 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./es/index.d.ts",
-      "import": "./es/index.js",
-      "require": "./lib/index.cjs"
-    },
-    "./components/*": {
-      "types": "./es/components/*.d.ts",
-      "import": "./es/components/*.js",
-      "require": "./lib/components/*.cjs"
-    },
-    "./hooks/*": {
-      "types": "./es/hooks/*.d.ts",
-      "import": "./es/hooks/*.js",
-      "require": "./lib/hooks/*.cjs"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
     }
   },
-  "main": "./lib/index.cjs",
-  "module": "./es/index.js",
-  "types": "./es/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "unpkg": "./dist/index.min.js",
   "jsdelivr": "./dist/index.min.js",
   "files": [
     "README.md",
     "LICENSE",
     "package.json",
-    "es",
-    "lib",
     "dist"
   ],
   "scripts": {
-    "dev": "ldesign-builder build --watch",
-    "build": "ldesign-builder build",
+    "dev": "unbuild --watch",
+    "build": "unbuild",
     "clean": "rimraf es lib dist",
     "test": "vitest run",
     "demo": "cd examples && pnpm dev",
@@ -59,12 +47,12 @@
     "react-dom": "^18.0.0"
   },
   "devDependencies": {
-    "@ldesign/builder": "workspace:*",
+    "unbuild": "^2.0.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@vitejs/plugin-react": "^4.2.0",
     "typescript": "^5.7.3",
-    "vitest": "^1.2.1",
+    "vitest": "^2.0.0",
     "rimraf": "^5.0.5"
   }
 }

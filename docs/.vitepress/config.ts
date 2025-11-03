@@ -4,6 +4,7 @@ export default defineConfig({
   title: '@ldesign/signature',
   description: '功能强大的手写签名组件',
   base: '/signature/',
+  ignoreDeadLinks: true,
 
   themeConfig: {
     logo: '/logo.svg',

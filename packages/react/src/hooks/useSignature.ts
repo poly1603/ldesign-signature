@@ -3,8 +3,8 @@
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { SignatureConfig, SignatureInstance, SignatureData, ExportFormat } from '../../../types';
-import { createSignaturePad } from '../../../core/signature-pad';
+import type { SignatureConfig, SignatureInstance, SignatureData, ExportFormat } from '@ldesign/signature-core';
+import { createSignaturePad } from '@ldesign/signature-core';
 
 /**
  * Use Signature hook

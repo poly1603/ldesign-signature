@@ -49,15 +49,19 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "ldesign-builder build -f esm,cjs,umd,dts",
-    "build:watch": "ldesign-builder build -f esm,cjs,dts --watch",
-    "dev": "ldesign-builder build -f esm,cjs,dts --watch",
+    "build": "pnpm -r --filter './packages/*' run build",
+    "build:core": "pnpm --filter '@ldesign/signature-core' run build",
+    "dev": "pnpm -r --parallel --filter './packages/*' run dev",
+    "clean": "pnpm -r --filter './packages/*' run clean",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "type-check": "pnpm -r --filter './packages/*' run type-check",
+    "test": "vitest run",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"
-  },
-  "dependencies": {
-    "@ldesign/shared": "workspace:*"
   },
   "peerDependencies": {
     "vue": ">=3.0.0",
@@ -76,11 +80,17 @@
     }
   },
   "devDependencies": {
-    "@ldesign/builder": "workspace:*",
+    "@types/node": "^22.0.0",
     "@types/react": "^18.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "@vitest/ui": "^2.0.0",
+    "eslint": "^9.0.0",
     "lit": "^3.0.0",
     "typescript": "^5.7.3",
+    "unbuild": "^2.0.0",
     "vitepress": "^1.0.0",
+    "vitest": "^2.0.0",
     "vue": "^3.0.0"
   }
 }

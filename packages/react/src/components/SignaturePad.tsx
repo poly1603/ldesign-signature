@@ -3,7 +3,7 @@
  */
 
 import React, { useEffect, useImperativeHandle, forwardRef, CSSProperties } from 'react';
-import { SignatureConfig, SignatureData, ExportFormat } from '../../../types';
+import type { SignatureConfig, SignatureData, ExportFormat } from '@ldesign/signature-core';
 import { useSignature } from '../hooks/useSignature';
 
 export interface SignaturePadProps {
