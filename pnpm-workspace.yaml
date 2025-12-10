@@ -3,9 +3,5 @@ packages:
   # 所有子包
   - 'packages/*'
   
-  # 示例项目
-  - 'examples/*'
-  - 'packages/*/examples/*'
-  
-  # 演示项目
-  - 'demos/*'
+  # Playground 演示项目
+  - 'playground'

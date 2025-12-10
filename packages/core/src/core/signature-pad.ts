@@ -9,7 +9,9 @@ import {
   Point,
   Stroke,
   SmoothAlgorithm,
-  ExportFormat
+  ExportFormat,
+  GuideLinesConfig,
+  BrushStyleType
 } from '../types';
 import { HistoryManager } from './history-manager';
 import { PointCapture } from './point-capture';
@@ -19,7 +21,7 @@ import { smoothPoints } from '../utils/smoothing';
 /**
  * Default configuration
  */
-const DEFAULT_CONFIG: Required<Omit<SignatureConfig, 'container' | 'width' | 'height' | 'background' | 'watermark' | 'onBegin' | 'onChange' | 'onEnd'>> = {
+const DEFAULT_CONFIG: Required<Omit<SignatureConfig, 'container' | 'width' | 'height' | 'background' | 'watermark' | 'onBegin' | 'onChange' | 'onEnd' | 'guideLines' | 'touchGestures'>> = {
   penColor: '#000000',
   minWidth: 0.5,
   maxWidth: 2.5,
@@ -29,8 +31,11 @@ const DEFAULT_CONFIG: Required<Omit<SignatureConfig, 'container' | 'width' | 'he
   throttle: 16,
   minPointDistance: 5,
   pressureSensitive: true,
+  brushStyle: 'default',
   dotSize: 2,
   maxHistorySize: 50,
+  autoResize: true,
+  orientationMode: 'auto',
 };
 
 /**
@@ -53,6 +58,8 @@ export class SignaturePad implements SignatureInstance {
   private boundPointerMove: (e: PointerEvent) => void;
   private boundPointerUp: (e: PointerEvent) => void;
   private rafId: number | null = null;
+  private resizeObserver: ResizeObserver | null = null;
+  private originalSize: { width: number; height: number } | null = null;
 
   constructor(canvas: HTMLCanvasElement, config: SignatureConfig = {}) {
     this.canvas = canvas;
@@ -71,7 +78,7 @@ export class SignaturePad implements SignatureInstance {
       this.config.velocityFilterWeight,
       this.config.pressureSensitive
     );
-    this.strokeRenderer = new StrokeRenderer(ctx);
+    this.strokeRenderer = new StrokeRenderer(ctx, this.config.brushStyle);
 
     // Setup canvas
     this.setupCanvas();
@@ -86,6 +93,98 @@ export class SignaturePad implements SignatureInstance {
 
     // Draw initial background
     this.drawBackground();
+
+    // Setup resize observer
+    if (this.config.autoResize) {
+      this.setupResizeObserver();
+    }
+  }
+
+  /**
+   * Setup resize observer for responsive handling
+   */
+  private setupResizeObserver(): void {
+    if (typeof ResizeObserver === 'undefined') return;
+
+    this.resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.target === this.canvas.parentElement) {
+          this.handleResize();
+        }
+      }
+    });
+
+    if (this.canvas.parentElement) {
+      this.resizeObserver.observe(this.canvas.parentElement);
+    }
+  }
+
+  /**
+   * Handle canvas resize
+   */
+  private handleResize(): void {
+    if (!this.canvas.parentElement) return;
+
+    // Store original size on first resize
+    if (!this.originalSize) {
+      this.originalSize = {
+        width: parseInt(this.canvas.style.width) || this.canvas.clientWidth,
+        height: parseInt(this.canvas.style.height) || this.canvas.clientHeight
+      };
+    }
+
+    // Get container dimensions
+    const containerWidth = this.canvas.parentElement.clientWidth;
+    const containerHeight = this.canvas.parentElement.clientHeight;
+
+    // Calculate aspect ratio
+    const aspectRatio = this.originalSize.width / this.originalSize.height;
+
+    // Calculate new dimensions maintaining aspect ratio
+    let newWidth = containerWidth;
+    let newHeight = containerWidth / aspectRatio;
+
+    if (newHeight > containerHeight && containerHeight > 0) {
+      newHeight = containerHeight;
+      newWidth = containerHeight * aspectRatio;
+    }
+
+    // Update canvas size
+    if (newWidth > 0 && newHeight > 0) {
+      this.resize(Math.floor(newWidth), Math.floor(newHeight));
+    }
+  }
+
+  /**
+   * Resize canvas to new dimensions
+   */
+  resize(width: number, height: number): void {
+    // Save current data
+    const data = this.toJSON();
+
+    // Update config
+    this.config.width = width;
+    this.config.height = height;
+
+    // Re-setup canvas
+    this.setupCanvas();
+
+    // Restore data with scaling
+    if (data.strokes.length > 0) {
+      const scaleX = width / data.width;
+      const scaleY = height / data.height;
+
+      this.strokes = data.strokes.map(stroke => ({
+        ...stroke,
+        points: stroke.points.map(p => ({
+          ...p,
+          x: p.x * scaleX,
+          y: p.y * scaleY
+        }))
+      }));
+    }
+
+    this.render();
   }
 
   /**
@@ -256,6 +355,9 @@ export class SignaturePad implements SignatureInstance {
     // Draw background
     this.drawBackground();
 
+    // Draw guide lines
+    this.drawGuideLines();
+
     // Draw all strokes
     this.strokeRenderer.drawStrokes(this.strokes);
 
@@ -320,6 +422,63 @@ export class SignaturePad implements SignatureInstance {
       };
     }
     // 'transparent' type - do nothing
+  }
+
+  /**
+   * Draw guide lines
+   */
+  private drawGuideLines(): void {
+    if (!this.config.guideLines?.enabled) return;
+
+    const guideLines = this.config.guideLines as GuideLinesConfig;
+    const width = parseInt(this.canvas.style.width) || this.canvas.width;
+    const height = parseInt(this.canvas.style.height) || this.canvas.height;
+
+    this.ctx.save();
+    this.ctx.strokeStyle = guideLines.color || '#e0e0e0';
+    this.ctx.lineWidth = guideLines.lineWidth || 1;
+
+    // Set line style
+    if (guideLines.style === 'dashed') {
+      this.ctx.setLineDash([8, 4]);
+    } else if (guideLines.style === 'dotted') {
+      this.ctx.setLineDash([2, 4]);
+    }
+
+    // Draw horizontal center line
+    if (guideLines.horizontal !== false) {
+      this.ctx.beginPath();
+      this.ctx.moveTo(0, height / 2);
+      this.ctx.lineTo(width, height / 2);
+      this.ctx.stroke();
+    }
+
+    // Draw vertical center line
+    if (guideLines.vertical) {
+      this.ctx.beginPath();
+      this.ctx.moveTo(width / 2, 0);
+      this.ctx.lineTo(width / 2, height);
+      this.ctx.stroke();
+    }
+
+    // Draw custom lines
+    if (guideLines.customLines) {
+      for (const line of guideLines.customLines) {
+        this.ctx.beginPath();
+        if (line.type === 'horizontal') {
+          const y = (line.position / 100) * height;
+          this.ctx.moveTo(0, y);
+          this.ctx.lineTo(width, y);
+        } else {
+          const x = (line.position / 100) * width;
+          this.ctx.moveTo(x, 0);
+          this.ctx.lineTo(x, height);
+        }
+        this.ctx.stroke();
+      }
+    }
+
+    this.ctx.restore();
   }
 
   /**
@@ -504,8 +663,28 @@ export class SignaturePad implements SignatureInstance {
       this.historyManager.setMaxSize(config.maxHistorySize);
     }
 
+    if (config.brushStyle !== undefined) {
+      this.strokeRenderer.setBrushStyle(config.brushStyle);
+    }
+
     // Re-render
     this.render();
+  }
+
+  /**
+   * Set brush style
+   */
+  setBrushStyle(style: BrushStyleType): void {
+    this.config.brushStyle = style;
+    this.strokeRenderer.setBrushStyle(style);
+    this.render();
+  }
+
+  /**
+   * Get current brush style
+   */
+  getBrushStyle(): BrushStyleType {
+    return this.config.brushStyle || 'default';
   }
 
   /**
@@ -566,6 +745,58 @@ export class SignaturePad implements SignatureInstance {
   }
 
   /**
+   * Get current strokes count
+   */
+  getStrokesCount(): number {
+    return this.strokes.length;
+  }
+
+  /**
+   * Get all strokes
+   */
+  getStrokes(): Stroke[] {
+    return [...this.strokes];
+  }
+
+  /**
+   * Get canvas dimensions
+   */
+  getDimensions(): { width: number; height: number } {
+    return {
+      width: parseInt(this.canvas.style.width) || this.canvas.width,
+      height: parseInt(this.canvas.style.height) || this.canvas.height
+    };
+  }
+
+  /**
+   * Export as Blob
+   */
+  toBlob(format: 'png' | 'jpeg' = 'png', quality: number = 0.92): Promise<Blob | null> {
+    return new Promise((resolve) => {
+      const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
+      this.canvas.toBlob((blob) => resolve(blob), mimeType, quality);
+    });
+  }
+
+  /**
+   * Copy to clipboard
+   */
+  async copyToClipboard(): Promise<boolean> {
+    try {
+      const blob = await this.toBlob('png');
+      if (blob && navigator.clipboard) {
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': blob })
+        ]);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
    * Destroy instance and cleanup
    */
   destroy(): void {
@@ -573,6 +804,12 @@ export class SignaturePad implements SignatureInstance {
     if (this.rafId) {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
+    }
+
+    // Disconnect resize observer
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
     }
 
     // Detach events

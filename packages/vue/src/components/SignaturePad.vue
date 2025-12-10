@@ -1,63 +1,31 @@
 <template>
-  <div class="signature-pad-container" :class="{ 'signature-pad-disabled': !enabled }">
-    <canvas ref="canvasRef" class="signature-pad-canvas" :width="width" :height="height" :style="canvasStyle"></canvas>
-
-    <div v-if="showControls" class="signature-pad-controls">
-      <button v-if="showClearButton" class="signature-pad-btn signature-pad-btn-clear" :disabled="isEmpty"
-        @click="handleClear">
-        {{ clearButtonText }}
-      </button>
-
-      <button v-if="showUndoButton" class="signature-pad-btn signature-pad-btn-undo" :disabled="!canUndo"
-        @click="handleUndo">
-        {{ undoButtonText }}
-      </button>
-
-      <button v-if="showRedoButton" class="signature-pad-btn signature-pad-btn-redo" :disabled="!canRedo"
-        @click="handleRedo">
-        {{ redoButtonText }}
-      </button>
-    </div>
+  <div class="l-signature-pad" :class="{ 'l-signature-pad--disabled': disabled }">
+    <canvas ref="canvasRef" class="l-signature-pad__canvas" />
+    <slot />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
-import { SignatureConfig } from '@ldesign/signature-core';
+import { computed, watch } from 'vue';
+import type { SignatureConfig } from '@ldesign/signature-core';
 import { useSignature } from '../composables/useSignature';
 
-// Props
+// Props - 简化的配置，所有高级配置通过 config prop 传入
 interface Props {
+  /** Canvas width */
   width?: number;
+  /** Canvas height */
   height?: number;
-  penColor?: string;
-  minWidth?: number;
-  maxWidth?: number;
-  enabled?: boolean;
-  showControls?: boolean;
-  showClearButton?: boolean;
-  showUndoButton?: boolean;
-  showRedoButton?: boolean;
-  clearButtonText?: string;
-  undoButtonText?: string;
-  redoButtonText?: string;
+  /** Disable the signature pad */
+  disabled?: boolean;
+  /** Full config object - all core options supported */
   config?: Partial<SignatureConfig>;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  width: 400,
+  width: 600,
   height: 200,
-  penColor: '#000000',
-  minWidth: 0.5,
-  maxWidth: 2.5,
-  enabled: true,
-  showControls: true,
-  showClearButton: true,
-  showUndoButton: true,
-  showRedoButton: true,
-  clearButtonText: '清空',
-  undoButtonText: '撤销',
-  redoButtonText: '重做',
+  disabled: false,
 });
 
 // Emits
@@ -65,25 +33,19 @@ const emit = defineEmits<{
   begin: [event: PointerEvent];
   change: [event: PointerEvent];
   end: [event: PointerEvent];
-  clear: [];
-  undo: [];
-  redo: [];
 }>();
 
 // Create config from props
 const signatureConfig = computed<SignatureConfig>(() => ({
   width: props.width,
   height: props.height,
-  penColor: props.penColor,
-  minWidth: props.minWidth,
-  maxWidth: props.maxWidth,
   ...props.config,
   onBegin: (e: PointerEvent) => emit('begin', e),
   onChange: (e: PointerEvent) => emit('change', e),
   onEnd: (e: PointerEvent) => emit('end', e),
 }));
 
-// Use signature composable
+// Use signature composable - 所有功能都来自 core
 const {
   canvasRef,
   instance,
@@ -99,97 +61,53 @@ const {
   fromJSON,
   download,
   setEnabled,
+  updateConfig,
 } = useSignature(signatureConfig);
 
-// Canvas style
-const canvasStyle = computed(() => ({
-  border: '1px solid #ddd',
-  borderRadius: '4px',
-  cursor: props.enabled ? 'crosshair' : 'not-allowed',
-}));
+// Watch disabled prop
+watch(() => props.disabled, (value) => {
+  setEnabled(!value);
+}, { immediate: true });
 
-// Handle actions
-const handleClear = () => {
-  clear();
-  emit('clear');
-};
-
-const handleUndo = () => {
-  undo();
-  emit('undo');
-};
-
-const handleRedo = () => {
-  redo();
-  emit('redo');
-};
-
-// Watch enabled prop
-watch(() => props.enabled, (value) => {
-  setEnabled(value);
-});
-
-// Expose methods to parent
+// Expose all methods to parent - 直接暴露 core 的所有功能
 defineExpose({
+  // 状态
+  isEmpty,
+  canUndo,
+  canRedo,
+  // 操作
   clear,
   undo,
   redo,
+  // 导出
   toDataURL,
   toSVG,
   toJSON,
   fromJSON,
   download,
-  isEmpty: () => isEmpty.value,
-  canUndo: () => canUndo.value,
-  canRedo: () => canRedo.value,
+  // 配置
+  setEnabled,
+  updateConfig,
+  // 获取实例 - 用于访问 core 的所有功能
   getInstance: () => instance.value,
 });
 </script>
 
-<style scoped>
-.signature-pad-container {
+<style>
+.l-signature-pad {
   display: inline-block;
   position: relative;
 }
 
-.signature-pad-disabled {
+.l-signature-pad--disabled {
   opacity: 0.6;
   pointer-events: none;
 }
 
-.signature-pad-canvas {
+.l-signature-pad__canvas {
   display: block;
-  background: #fff;
+  touch-action: none;
+  user-select: none;
 }
 
-.signature-pad-controls {
-  margin-top: 8px;
-  display: flex;
-  gap: 8px;
-}
-
-.signature-pad-btn {
-  padding: 6px 16px;
-  font-size: 14px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: #fff;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.signature-pad-btn:hover:not(:disabled) {
-  border-color: #409eff;
-  color: #409eff;
-}
-
-.signature-pad-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.signature-pad-btn-clear:hover:not(:disabled) {
-  border-color: #f56c6c;
-  color: #f56c6c;
-}
 </style>

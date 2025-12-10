@@ -1,28 +1,26 @@
 # @ldesign/signature Packages
 
-This directory contains all framework-specific and core packages for the @ldesign/signature library.
+This directory contains core and framework-specific packages for the @ldesign/signature library.
 
 ## 📦 Package Overview
 
 ### Core Package
 - **@ldesign/signature-core** - Framework-agnostic signature pad engine
-  - Zero dependencies (except internal @ldesign/shared)
+  - Zero external dependencies
   - Pure TypeScript implementation
-  - Canvas-based rendering
+  - Canvas-based rendering with HiDPI support
+  - Catmull-Rom curve smoothing
+  - Pressure sensitivity support
+  - Multi-format export (PNG, JPEG, SVG, JSON)
   - Comprehensive utility functions
 
 ### Framework Packages
 
 #### Production Ready ✅
 - **@ldesign/signature-vue** - Vue 3 components and composables
-- **@ldesign/signature-react** - React 18+ components and hooks
-- **@ldesign/signature-lit** - Lit web components
-
-#### New Implementations 🚧
-- **@ldesign/signature-angular** - Angular 16+ components and services
-- **@ldesign/signature-solid** - Solid.js primitives and components
-- **@ldesign/signature-svelte** - Svelte 4/5 components and stores
-- **@ldesign/signature-qwik** - Qwik components with resumability
+  - `<SignaturePad>` component with full props support
+  - `useSignature()` composable for custom implementations
+  - TypeScript support with full type definitions
 
 ## 🚀 Development Workflow
 
@@ -232,12 +230,7 @@ All packages must:
 ```
 @ldesign/signature-core (base)
     ↓
-├── @ldesign/signature-vue
-├── @ldesign/signature-react  
-├── @ldesign/signature-angular
-├── @ldesign/signature-solid
-├── @ldesign/signature-svelte
-└── @ldesign/signature-qwik
+└── @ldesign/signature-vue
 ```
 
 ## 📚 Resources

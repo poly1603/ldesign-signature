@@ -3,6 +3,21 @@
  */
 
 /**
+ * Device type
+ */
+export type DeviceType = 'mouse' | 'touch' | 'pen' | 'unknown';
+
+/**
+ * Orientation mode
+ */
+export type OrientationMode = 'auto' | 'portrait' | 'landscape';
+
+/**
+ * Brush style type
+ */
+export type BrushStyleType = 'default' | 'pen' | 'brush' | 'pencil' | 'marker' | 'neon';
+
+/**
  * Point data structure
  */
 export interface Point {
@@ -129,6 +144,9 @@ export interface SignatureConfig {
   /** Enable pressure sensitivity (default: true) */
   pressureSensitive?: boolean;
 
+  /** Brush style (default: 'default') */
+  brushStyle?: BrushStyleType;
+
   /** Background configuration */
   background?: BackgroundConfig;
 
@@ -148,6 +166,50 @@ export interface SignatureConfig {
   onBegin?: (event: PointerEvent) => void;
   onChange?: (event: PointerEvent) => void;
   onEnd?: (event: PointerEvent) => void;
+
+  /** Auto resize when container size changes (default: true) */
+  autoResize?: boolean;
+
+  /** Orientation mode for mobile devices (default: 'auto') */
+  orientationMode?: OrientationMode;
+
+  /** Guide lines configuration */
+  guideLines?: GuideLinesConfig;
+
+  /** Touch gesture options */
+  touchGestures?: TouchGesturesConfig;
+}
+
+/**
+ * Guide lines configuration
+ */
+export interface GuideLinesConfig {
+  /** Enable guide lines */
+  enabled?: boolean;
+  /** Line color */
+  color?: string;
+  /** Line width */
+  lineWidth?: number;
+  /** Line style: 'solid' | 'dashed' | 'dotted' */
+  style?: 'solid' | 'dashed' | 'dotted';
+  /** Show horizontal center line */
+  horizontal?: boolean;
+  /** Show vertical center line */
+  vertical?: boolean;
+  /** Custom lines (positions as percentage 0-100) */
+  customLines?: { type: 'horizontal' | 'vertical'; position: number }[];
+}
+
+/**
+ * Touch gestures configuration
+ */
+export interface TouchGesturesConfig {
+  /** Enable two-finger scroll prevention (default: true) */
+  preventScroll?: boolean;
+  /** Enable pinch zoom prevention (default: true) */
+  preventZoom?: boolean;
+  /** Enable double-tap prevention (default: true) */
+  preventDoubleTap?: boolean;
 }
 
 /**
