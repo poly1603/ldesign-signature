@@ -2,8 +2,9 @@
  * Stroke rendering system
  */
 
-import { Point, Stroke } from '../types';
+import { Point, Stroke, BrushStyleType } from '../types';
 import { calculateStrokeWidth } from '../utils/smoothing';
+import { BrushStyle, BrushFactory, BrushRenderer } from '../features/brush-styles';
 
 /**
  * Stroke Renderer
@@ -11,9 +12,43 @@ import { calculateStrokeWidth } from '../utils/smoothing';
  */
 export class StrokeRenderer {
   private ctx: CanvasRenderingContext2D;
+  private brushStyle: BrushStyleType = 'default';
+  private brushRenderer: BrushRenderer;
 
-  constructor(ctx: CanvasRenderingContext2D) {
+  constructor(ctx: CanvasRenderingContext2D, brushStyle: BrushStyleType = 'default') {
     this.ctx = ctx;
+    this.brushStyle = brushStyle;
+    this.brushRenderer = BrushFactory.getBrush(this.getBrushStyleEnum(brushStyle));
+  }
+
+  /**
+   * Convert string brush style to enum
+   */
+  private getBrushStyleEnum(style: BrushStyleType): BrushStyle {
+    const map: Record<BrushStyleType, BrushStyle> = {
+      'default': BrushStyle.DEFAULT,
+      'pen': BrushStyle.PEN,
+      'brush': BrushStyle.BRUSH,
+      'pencil': BrushStyle.PENCIL,
+      'marker': BrushStyle.MARKER,
+      'neon': BrushStyle.NEON,
+    };
+    return map[style] || BrushStyle.DEFAULT;
+  }
+
+  /**
+   * Set brush style
+   */
+  setBrushStyle(style: BrushStyleType): void {
+    this.brushStyle = style;
+    this.brushRenderer = BrushFactory.getBrush(this.getBrushStyleEnum(style));
+  }
+
+  /**
+   * Get current brush style
+   */
+  getBrushStyle(): BrushStyleType {
+    return this.brushStyle;
   }
 
   /**
@@ -30,11 +65,7 @@ export class StrokeRenderer {
       return;
     }
 
-    // Multiple points - draw lines with variable width
-    this.ctx.strokeStyle = color;
-    this.ctx.lineCap = 'round';
-    this.ctx.lineJoin = 'round';
-
+    // Multiple points - draw lines with variable width using brush renderer
     for (let i = 1; i < points.length; i++) {
       const p1 = points[i - 1];
       const p2 = points[i];
@@ -47,26 +78,8 @@ export class StrokeRenderer {
         maxWidth
       );
 
-      this.drawLine(p1, p2, width, color);
+      this.brushRenderer.drawStroke(this.ctx, p1, p2, color, width);
     }
-  }
-
-  /**
-   * Draw a line segment between two points
-   */
-  private drawLine(p1: Point, p2: Point, width: number, color: string): void {
-    this.ctx.save();
-    this.ctx.strokeStyle = color;
-    this.ctx.lineWidth = width;
-    this.ctx.lineCap = 'round';
-    this.ctx.lineJoin = 'round';
-
-    this.ctx.beginPath();
-    this.ctx.moveTo(p1.x, p1.y);
-    this.ctx.lineTo(p2.x, p2.y);
-    this.ctx.stroke();
-
-    this.ctx.restore();
   }
 
   /**

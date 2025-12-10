@@ -10,6 +10,7 @@ export { StrokeRenderer } from './core/stroke-renderer';
 
 // Types
 export type * from './types';
+export type { BrushStyleType } from './types';
 
 // Utils
 export * from './utils/smoothing';
